@@ -52,6 +52,37 @@ class TestRenderSelect(unittest.TestCase):
 
         self.assertEqual(result, 'SELECT *')
 
+    def test_aggregation_within_record(self):
+        """Ensure that aggregation within a query works when there is an alias
+        for that field.
+        """
+        from bigquery.query_builder import _render_select 
+
+        result_select = _render_select({
+            'start_time': {
+                'alias': 'timestamp',
+                'aggregation_level': 'RECORD',
+                'format': 'MAX'
+            }})
+        print(result_select)
+        expected_select = 'SELECT MAX(start_time) WITHIN RECORD as timestamp' 
+        self.assertEqual(expected_select, result_select)
+
+    def test_aggregation_within_record_no_alias(self):
+        """
+        Ensure that aggregation within a query works when there is no alias for
+        that field.
+        """
+        from bigquery.query_builder import _render_select 
+
+        result_select = _render_select({
+            'start_time': {
+                'aggregation_level': 'RECORD',
+                'format': 'MAX'
+            }})
+        print(result_select)
+        expected_select = 'SELECT MAX(start_time) WITHIN RECORD'
+        self.assertEqual(expected_select, result_select)
 
 class TestRenderSources(unittest.TestCase):
 

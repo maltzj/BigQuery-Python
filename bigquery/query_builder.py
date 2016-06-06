@@ -84,14 +84,21 @@ def _render_select(selections):
         original_name = name
         for options_dict in options:
             name = original_name
+            name_qualifiers = list()
+            aggregation_level = options_dict.get('aggregation_level')
+            if aggregation_level:
+                name_qualifiers.append("WITHIN %s" % aggregation_level)
+
             alias = options_dict.get('alias')
-            alias = "as %s" % alias if alias else ""
+            if alias:
+                name_qualifiers.append("as %s" % alias)
 
             formatter = options_dict.get('format')
             if formatter:
                 name = _format_select(formatter, name)
 
-            rendered_selections.append("%s %s" % (name, alias))
+            rendered_selections.append("%s %s" % (name,
+                " ".join(name_qualifiers)))
 
     return "SELECT " + ", ".join(rendered_selections)
 
